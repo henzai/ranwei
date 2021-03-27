@@ -19,6 +19,7 @@ func main() {
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
+	dg.AddHandler(ready)
 
 	// In this example, we only care about receiving message events.
 	dg.Identify.Intents = discordgo.IntentsGuildMessages
@@ -64,4 +65,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "シャブ" {
 		s.ChannelMessageSend(m.ChannelID, "？")
 	}
+}
+
+func ready(s *discordgo.Session, r *discordgo.Ready) {
+	s.ChannelMessageSend("825273273586810881", "均备好了！")
 }
