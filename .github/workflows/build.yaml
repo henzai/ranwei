@@ -7,6 +7,7 @@ on:
 
 env:
   GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
 
 jobs:
   build:
@@ -25,4 +26,4 @@ jobs:
       - name: Push the docker image
         run: docker push asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/ranwei:${GITHUB_SHA::7}
       - name: deploy container on GCP
-        run: gcloud compute instances update-container instance-1 --container-image asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/ranwei:latest
+        run: gcloud compute instances update-container instance-1 --zone us-west1-b --container-image asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/ranwei:latest
