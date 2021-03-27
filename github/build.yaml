@@ -1,0 +1,28 @@
+name: docker_build
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: GCP Authenticate
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+      - name: Configure docker to use the gcloud cli
+        run: gcloud auth configure-docker --quiet
+      - name: Build a docker image
+        run: docker build -t asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/ranwei:${GITHUB_SHA::7} .
+      - name: Push the docker image
+        run: docker push asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/ranwei:${GITHUB_SHA::7}
+      - name: deploy container on GCP
+        run: gcloud compute instances update-container instance-1 --container-image asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/ranwei:latest
