@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -62,8 +63,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// }
 
 	// If the message is "ping" reply with "Pong!"
-	if m.Content == "シャブ" {
-		s.ChannelMessageSend(m.ChannelID, "？")
+	if strings.Contains(m.Content, "シャブ") {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "👍")
 	}
 }
 
