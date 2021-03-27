@@ -27,6 +27,7 @@ jobs:
       - name: Push the docker image
         run: docker push asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/ranwei:latest
   deploy:
+    needs: build
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
