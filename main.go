@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -52,6 +51,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
+
+	// fmt.Printf("channelID: %v\n", m.ChannelID)
+
+	// if len(m.Attachments) > 0 {
+	// 	for _, v := range m.Attachments {
+	// 		fmt.Printf("filename: %v\nurl: %v\n", v.Filename, v.URL)
+	// 	}
+	// }
+
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "シャブ" {
 		s.ChannelMessageSend(m.ChannelID, "？")
