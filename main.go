@@ -14,9 +14,18 @@ func main() {
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + os.Getenv("BOT_TOKEN"))
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
+		fmt.Printf("error creating Discord session: %v", err)
 		return
 	}
+	defer func() {
+		// Cleanly close down the Discord session.
+		err = dg.Close()
+		if err != nil {
+			fmt.Printf("error cannot close connection: %v", err)
+			return
+		}
+		fmt.Println("再见ranwei")
+	}()
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
@@ -37,11 +46,6 @@ func main() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
-
-	// Cleanly close down the Discord session.
-	dg.Close()
-
-	fmt.Println("再见ranwei")
 }
 
 // This function will be called (due to AddHandler above) every time a new
@@ -69,5 +73,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func ready(s *discordgo.Session, r *discordgo.Ready) {
-	s.ChannelMessageSend("825273273586810881", "均备好了！")
+	// Set the playing status.
+	s.UpdateGameStatus(0, "シャブスピン")
 }
