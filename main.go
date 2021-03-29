@@ -68,6 +68,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// If the message is "ping" reply with "Pong!"
 	if strings.Contains(m.Content, "シャブ") {
+		fmt.Println(m.Content)
 		s.MessageReactionAdd(m.ChannelID, m.ID, "👍")
 	}
 }
