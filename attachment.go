@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"google.golang.org/api/idtoken"
 )
 
 type DTO struct {
@@ -53,7 +54,12 @@ func saveAttachment(ctx context.Context, dto *DTO) error {
 		return err
 	}
 
-	res, err := http.Post(url, "application/json", bytes.NewBuffer(values))
+	client, err := idtoken.NewClient(ctx, url)
+	if err != nil {
+		return fmt.Errorf("idtoken.NewClient: %v", err)
+	}
+
+	res, err := client.Post(url, "application/json", bytes.NewBuffer(values))
 	if err != nil {
 		return err
 	}
