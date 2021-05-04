@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -51,20 +52,33 @@ func main() {
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the authenticated bot has access to.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
+	ctx := context.Background()
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	// fmt.Printf("channelID: %v\n", m.ChannelID)
-
-	// if len(m.Attachments) > 0 {
-	// 	for _, v := range m.Attachments {
-	// 		fmt.Printf("filename: %v\nurl: %v\n", v.Filename, v.URL)
-	// 	}
-	// }
+	if len(m.Attachments) > 0 {
+		for _, a := range m.Attachments {
+			a := a
+			t, err := m.Timestamp.Parse()
+			if err != nil {
+				panic(err)
+			}
+			dto := &DTO{
+				Attachment: a,
+				CreatedAt:  t,
+				ChannelID:  m.ChannelID,
+				UserID:     m.Author.ID,
+				UserName:   m.Author.Username,
+			}
+			err = saveAttachment(ctx, dto)
+			if err != nil {
+				fmt.Printf("cannot save attachment %v", err)
+			}
+		}
+	}
 
 	// If the message is "ping" reply with "Pong!"
 	if strings.Contains(m.Content, "シャブ") {
