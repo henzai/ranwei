@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -34,13 +35,39 @@ func reactionifContainPeyoung(s *discordgo.Session, m *discordgo.MessageCreate) 
 	}
 
 	if strings.Contains(m.Content, "ペヤング") {
-		err := s.MessageReactionAdd(m.ChannelID, m.ID, "843157482909728768")
+		e, err := getPeyongEmoji(s, m.GuildID)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "cannot reaction: %v", err)
+			fmt.Fprintf(os.Stderr, "cannot get emoji: %v", err)
 			return
 		}
+		_, err = s.ChannelMessageSend(m.ChannelID, e.MessageFormat())
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "cannot create messege: %v", err)
+			return
+		}
+		// MEMO: reactionを返す時はこのように `name:id`を渡さなくてはいけない
+		// see (https://discord.com/developers/docs/resources/channel#create-reaction)
+		// err := s.MessageReactionAdd(m.ChannelID, m.ID, "peyoung:843157482909728768")
+		// if err != nil {
+		// 	fmt.Fprintf(os.Stderr, "cannot reaction: %v", err)
+		// 	return
+		// }
 		return
 	}
+}
+
+func getPeyongEmoji(s *discordgo.Session, guildId string) (*discordgo.Emoji, error) {
+	es, err := s.GuildEmojis(guildId)
+	if err != nil {
+		return nil, err
+	}
+	for _, ee := range es {
+		ee := ee
+		if ee.ID == "843157482909728768" {
+			return ee, nil
+		}
+	}
+	return nil, errors.New("cannot find peyoung emoji")
 }
 
 func shouldReaction(m *discordgo.MessageCreate) bool {
