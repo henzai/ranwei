@@ -88,7 +88,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			fmt.Printf("can not parse timestamp: %v", err)
 			return
 		}
-		_, _, sec := t.Date()
+		sec := t.Second()
 		if res := sec % 2; res != 1 {
 			s.MessageReactionAdd(m.ChannelID, m.ID, "👍")
 		}
