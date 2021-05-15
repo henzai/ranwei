@@ -34,12 +34,7 @@ func reactionifContainPeyoung(s *discordgo.Session, m *discordgo.MessageCreate) 
 	}
 
 	if strings.Contains(m.Content, "ペヤング") {
-		peyoung, err := s.State.Emoji(m.GuildID, "843157482909728768")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "invalid emoji: %v", err)
-			return
-		}
-		err = s.MessageReactionAdd(m.ChannelID, m.ID, peyoung.MessageFormat())
+		err := s.MessageReactionAdd(m.ChannelID, m.ID, "843157482909728768")
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "cannot reaction: %v", err)
 			return
