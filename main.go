@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -15,14 +14,14 @@ func main() {
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + os.Getenv("BOT_TOKEN"))
 	if err != nil {
-		fmt.Printf("error creating Discord session: %v", err)
+		fmt.Fprintf(os.Stderr, "error creating Discord session: %v", err)
 		return
 	}
 	defer func() {
 		// Cleanly close down the Discord session.
 		err = dg.Close()
 		if err != nil {
-			fmt.Printf("error cannot close connection: %v", err)
+			fmt.Fprintf(os.Stderr, "error cannot close connection: %v", err)
 			return
 		}
 		fmt.Println("再见ranwei")
@@ -30,6 +29,7 @@ func main() {
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
+	dg.AddHandler(reactionifContainShabu)
 	dg.AddHandler(ready)
 
 	// In this example, we only care about receiving message events.
@@ -45,7 +45,7 @@ func main() {
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 }
 
@@ -64,7 +64,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			a := a
 			t, err := m.Timestamp.Parse()
 			if err != nil {
-				panic(err)
+				fmt.Fprintf(os.Stderr, "cannot parse timestamp: %v", err)
+				return
 			}
 			dto := &DTO{
 				Attachment: a,
@@ -75,22 +76,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			err = saveAttachment(ctx, dto)
 			if err != nil {
-				fmt.Printf("cannot save attachment %v", err)
+				fmt.Fprintf(os.Stderr, "cannot save attachment %v", err)
 				return
 			}
-		}
-	}
-
-	// If the message is "ping" reply with "Pong!"
-	if strings.Contains(m.Content, "シャブ") {
-		t, err := m.Timestamp.Parse()
-		if err != nil {
-			fmt.Printf("can not parse timestamp: %v", err)
-			return
-		}
-		sec := t.Second()
-		if res := sec % 2; res != 1 {
-			s.MessageReactionAdd(m.ChannelID, m.ID, "👍")
 		}
 	}
 }
