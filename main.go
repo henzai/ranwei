@@ -30,6 +30,7 @@ func main() {
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
 	dg.AddHandler(reactionifContainShabu)
+	dg.AddHandler(reactionifContainPeyoung)
 	dg.AddHandler(ready)
 
 	// In this example, we only care about receiving message events.
