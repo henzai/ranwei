@@ -1,3 +1,4 @@
 reload:
+	docker-compose down
 	docker-compose build
-	docker-compose restart
+	docker-compose up

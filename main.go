@@ -76,14 +76,22 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			err = saveAttachment(ctx, dto)
 			if err != nil {
 				fmt.Printf("cannot save attachment %v", err)
+				return
 			}
 		}
 	}
 
 	// If the message is "ping" reply with "Pong!"
 	if strings.Contains(m.Content, "シャブ") {
-		fmt.Println(m.Content)
-		s.MessageReactionAdd(m.ChannelID, m.ID, "👍")
+		t, err := m.Timestamp.Parse()
+		if err != nil {
+			fmt.Printf("can not parse timestamp: %v", err)
+			return
+		}
+		_, _, sec := t.Date()
+		if res := sec % 2; res != 1 {
+			s.MessageReactionAdd(m.ChannelID, m.ID, "👍")
+		}
 	}
 }
 
