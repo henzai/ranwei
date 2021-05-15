@@ -34,7 +34,7 @@ func reactionifContainPeyoung(s *discordgo.Session, m *discordgo.MessageCreate) 
 		return
 	}
 	if strings.Contains(m.Content, "ペヤング") {
-		err := s.MessageReactionAdd(m.ChannelID, m.ID, ":peyoung:")
+		err := s.MessageReactionAdd(m.ChannelID, m.ID, "843157482909728768")
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "cannot reaction: %v", err)
 			return
