@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -45,17 +46,16 @@ func ReactionifContainPeyoung(s *discordgo.Session, m *discordgo.MessageCreate) 
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-
 	if strings.Contains(m.Content, "ペヤング") {
-		// NOTE: Privileged Gateway Intents/PRESENCE INTENT がonになっていないとエラーになる
-		e, err := s.State.Emoji(m.GuildID, PEYONG_EMOJI_ID)
+		e, err := getPeyongEmoji(s, m.GuildID)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "cannot get emoji: %v", err)
+			fmt.Printf("cannot get emoji: %v", err)
 			return
 		}
+
 		_, err = s.ChannelMessageSend(m.ChannelID, e.MessageFormat())
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "cannot create messege: %v", err)
+			fmt.Printf("cannot create messege: %v", err)
 			return
 		}
 		// MEMO: reactionを返す時はこのように `name:id`を渡さなくてはいけない
@@ -67,4 +67,18 @@ func ReactionifContainPeyoung(s *discordgo.Session, m *discordgo.MessageCreate) 
 		// }
 		return
 	}
+}
+
+func getPeyongEmoji(s *discordgo.Session, guildId string) (*discordgo.Emoji, error) {
+	es, err := s.GuildEmojis(guildId)
+	if err != nil {
+		return nil, err
+	}
+	for _, ee := range es {
+		ee := ee
+		if ee.ID == PEYONG_EMOJI_ID {
+			return ee, nil
+		}
+	}
+	return nil, errors.New("cannot find peyoung emoji")
 }
